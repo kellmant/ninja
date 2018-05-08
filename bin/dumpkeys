@@ -11,7 +11,7 @@ else
     formatfile="KEYSTORE.${mykeys}"
     echo "dump/$SKEY/${1}=$(date)" > $formatfile
 fi
-tstamped=$(date +%Y%m%d_%H%M%S%Z)
+tstamped=$(date +%Y%m%d_)
 cnt=0
 INKEYS=($(etcdctl ls --sort --recursive ${1})) || { echo "${1} not a key" ; exit 1 ; }
 for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
