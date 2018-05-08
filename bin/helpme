@@ -28,5 +28,6 @@ echo -en "${NC}"
 echo
 echo -e "${BBlue} localhost:4000 ${NC}=> ${BGreen}https://api.${BUDDY}.seclab.ninja${NC}"
 echo -e "${BBlue} localhost:5000 ${NC}=> ${BGreen}https://app.${BUDDY}.seclab.ninja${NC}"
+echo -e " run ${BWhite}'helpme'${NC} to see this message again. "
 echo
 yoda-said

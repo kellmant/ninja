@@ -80,10 +80,6 @@ RUN	mkdir -p /node && chown -R ctrl /node && \
 	echo "Explorer CLI: https://www.npmjs.com/package/explorer-cli " >> /etc/motd && \
 	echo "newman: https://www.npmjs.com/package/autotest-engine " >> /etc/motd && \
 	echo " " >> /etc/motd && \
-	echo "run 'thesituation' to see ninja shell state " >> /etc/motd && \
-	echo " " >> /etc/motd && \
-	echo "For additional information => http://ninja.seclab.help " >> /etc/motd && \
-	echo " " >> /etc/motd && \
 	apk -Uuvv add --no-cache emacs git \
 	python py-pip zip util-linux coreutils findutils grep \
 	jq tree groff less build-base linux-headers fontconfig openssl-dev \ 
