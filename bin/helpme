@@ -20,14 +20,20 @@ On_White='\e[47m'       # White
 ALERT=${BWhite}${On_Red} # Bold White on red background
 NC="\e[m"               # Color Reset
 cat /etc/motd
-echo " "
-echo -e "${BBlue} Shell   : ${BWhite} $(uname -av) ${NC}"
-echo -e "${BBlue} npm     : ${BWhite} $(npm -v) ${NC}"
-echo -e "${BBlue} nodejs  : ${BWhite} $(node -v) ${NC}"
+echo -e "${BBlue}Shell   : ${BWhite} $(uname -av) ${NC}"
+echo -e "${BBlue}npm     : ${BWhite} $(npm -v) ${NC}"
+echo -e "${BBlue}nodejs  : ${BWhite} $(node -v) ${NC}"
 echo -en "${NC}"
 echo
+echo " To setup a git service you can use: "
+echo "git config --global user.name " 
+echo "git config --global user.email "  
+echo "git config --global credential.helper store "
+echo
+echo " The following local ports are mapped to outside URL for live testing:"
 echo -e "${BBlue} localhost:4000 ${NC}=> ${BGreen}https://api.${BUDDY}.seclab.ninja${NC}"
 echo -e "${BBlue} localhost:5000 ${NC}=> ${BGreen}https://app.${BUDDY}.seclab.ninja${NC}"
-echo -e " run ${BWhite}'helpme'${NC} to see this message again. "
+echo
+echo -e "run ${BWhite}'helpme'${NC} to see this message again. "
 echo
 yoda-said

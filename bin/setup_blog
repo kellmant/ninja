@@ -59,12 +59,9 @@ fi
 
 echo "Please wait $BUDDY for your ninja shell to be setup"
 echo " "
-echo 
-sleep 7
 echo "Starting ninja shell install and setup . . . "
-sleep 5
 echo "Please wait for your configuration to complete."
-sleep 4
+sleep 2
 
 
 session-create
