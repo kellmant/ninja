@@ -1,0 +1,38 @@
+#!/bin/bash
+#set -eo pipefail
+source /.IPS
+jobstart "$$"
+trap "jobtrace '$$'" 0 1 2 3 6
+if [ -z ${1} ] ; then
+formatfile="KEYSTORE"
+    echo "dump/KEYSTORE=$(date)" > $formatfile
+else
+    mykeys=$(echo ${1} | tr '/' '-')
+    formatfile="KEYSTORE.${mykeys}"
+    echo "dump/$SKEY/${1}=$(date)" > $formatfile
+fi
+tstamped=$(date +%Y%m%d_%H%M%S%Z)
+cnt=0
+INKEYS=($(etcdctl ls --sort --recursive ${1})) || { echo "${1} not a key" ; exit 1 ; }
+for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
+    tfile="${INKEYS[$i]}"
+    element=$(echo ${tfile} | cut -d '/' -f 2-)
+    dumpchk=$(echo ${tfile} | cut -d '/' -f 2)
+    echo -e "${BBlue} $element ${NC}"
+    vals=$(etcdctl get $tfile 2>/dev/null)
+    if [ $? -eq 0 ] ; then
+        if [ "$dumpchk" == "dump" ] ; then
+            continue
+        fi
+        (( cnt++ ))
+        echo -n " $cnt $vals "
+        echo "${element}=${vals}" >> $formatfile
+    else
+     #   echo "${element}" >> $formatfile
+        echo -n " ${BGreen} $cnt KEYSTORE: $element${NC} "
+     #continue
+    fi
+    echo " "
+done
+mv $formatfile ${formatfile}.${tstamped}${cnt}
+msgbus " dumped $cnt values to ${formatfile}.${tstamped}${cnt}"

@@ -1,0 +1,14 @@
+IMPORT /efs/deploy/DockerBuild/overlay
+IMPORT /efs/deploy/DockerBuild/ttyd
+IMPORT /efs/deploy/DockerBuild/nodeshell
+#COPY vim_runtime /usr/share/vim_runtime
+COPY DEV /DEV
+COPY bin/ /usr/local/bin/
+RUN mkdir -p /web && chown -R ctrl /web && mkdir -p /tls && chown -R ctrl /tls
+EXPOSE 3000 4000 5000
+VOLUME ["/socket"]
+USER ctrl
+ENV PATH=~/bin:/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ETCDCTL_STRICT_HOST_KEY_CHECKING=false FLEETCTL_STRICT_HOST_KEY_CHECKING=false TERM=screen-256color
+WORKDIR /ctrl
+ENTRYPOINT ["/sbin/tini", "-g", "--"]
+CMD ["/DEV"] 

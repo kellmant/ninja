@@ -1,0 +1,54 @@
+[Unit]
+Description=%p dev shell for %i 
+
+[Service]
+EnvironmentFile=/etc/environment
+EnvironmentFile=-/efs/deploy/env/%i
+TimeoutStartSec=0
+Restart=always
+RestartSec=2s
+KillMode=none
+
+# PreStart
+ExecStartPre=-/usr/bin/docker network create %p-%i
+ExecStartPre=-/usr/bin/docker stop %p.%i
+ExecStartPre=-/usr/bin/docker kill %p.%i
+ExecStartPre=-/usr/bin/docker rm %p.%i
+ExecStartPre=-/bin/bash -c 'etcdctl set stream "%H | $(date +\"%%a %%r\") | %N container coming ONLINE "'
+ExecStartPre=-/usr/bin/docker pull registry:5000/%p:latest
+
+# Start
+ExecStart=/usr/bin/docker run --rm -h %p --name %p.%i --network=%p-%i -e ETCDCTL_ENDPOINTS=http://keystore.%i:2379 -e MYKEYSTORE=keystore.%i -e BUDDY=%i -v /efs/share/hack/%i:/web -v /efs/deploy/InterdimensionalPortalService:/.IPS:ro -v /efs/ca/local:/ca:ro -v /efs/ca/usr/%i:/tls -v /efs/home/%i/node:/ctrl -P registry:5000/%p:latest
+ExecStartPost=-/usr/bin/etcdctl rm fail/%i/%p
+ExecStartPost=-/usr/bin/etcdctl set env/app/shell.%i/proto "https"
+ExecStartPost=-/usr/bin/etcdctl set env/app/api.%i/proto "http"
+ExecStartPost=-/usr/bin/etcdctl set env/app/app.%i/proto "http"
+ExecStartPost=-/usr/bin/etcdctl set env/app/shell.%i/inc "websockets"
+ExecStartPost=-/usr/bin/etcdctl set env/app/api.%i/inc "websockets"
+ExecStartPost=-/usr/bin/etcdctl set env/app/app.%i/inc "websockets"
+ExecStartPost=-/usr/bin/etcdctl set env/app/shell.%i/auth "%i"
+ExecStartPost=-/usr/bin/etcdctl set env/app/api.%i/auth "public"
+ExecStartPost=-/usr/bin/etcdctl set env/app/app.%i/auth "public"
+ExecStartPost=-/bin/bash -c 'etcdctl set stream "%H | $(date +\"%%a %%r\") | Service published to https://shell.%i.$(etcdctl get env/global/dev) "'
+ExecStartPost=-/bin/bash -c 'sleep 6 ; etcdctl set dev/shell.%i/%p "%H:$(docker port %p.%i | grep 3000 | cut -d : -f 2)"'
+ExecStartPost=-/bin/bash -c 'sleep 2 ; etcdctl set dev/api.%i/%p "%H:$(docker port %p.%i | grep 4000 | cut -d : -f 2)"'
+ExecStartPost=-/bin/bash -c 'sleep 2 ; etcdctl set dev/app.%i/%p "%H:$(docker port %p.%i | grep 5000 | cut -d : -f 2)"'
+ExecStartPost=-/bin/bash -c 'etcdctl set ops/net/%p/%i/shell "https://%p.%i:3000"' 
+ExecStartPost=-/bin/bash -c 'etcdctl set ops/net/%p/%i/api "http://%p.%i:4000"' 
+ExecStartPost=-/bin/bash -c 'etcdctl set ops/net/%p/%i/app "http://%p.%i:5000"' 
+
+# Stop
+ExecStop=-/usr/bin/etcdctl rm dev/shell.%i/%p
+ExecStopPost=-/usr/bin/etcdctl rm dev/app.%i/%p
+ExecStopPost=-/usr/bin/etcdctl rm dev/api.%i/%p
+ExecStopPost=-/bin/bash -c 'etcdctl set stream "%H | $(date +\"%%a %%r\") | https://shell.%i.$(etcdctl get env/global/dev) OFFLINE"'
+
+# PostStop
+ExecStopPost=-/bin/bash -c 'etcdctl set fail/%i/%p "$(date -u +%%s)"'
+ExecStopPost=-/usr/bin/etcdctl rm --recursive ops/net/%p/%i
+ExecStopPost=-/usr/bin/docker stop %p.%i
+ExecStopPost=-/usr/bin/docker rm %p.%i
+ExecStopPost=-/usr/bin/docker network rm %p-%i
+
+[X-Fleet]
+

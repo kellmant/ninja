@@ -1,0 +1,51 @@
+#!/bin/bash
+set -a
+source /.IPS
+jobstart "$$"
+trap "jobtrace '$$'" 0 1 2 3 6
+
+if [ -z ${1} ] ; then
+    aws s3 ls s3://east1.seclab.ninja.${BUDDY}/
+    echo -n "Choose PRE session to restore > "
+    read BNAME
+    if [[ -z "$BNAME" ]] ; then
+        echo "no session selected."
+        exit 1
+    fi
+else
+    BNAME="${1}"
+fi
+
+BSHELL="${overlay}.seclab.$(hostname).${BUDDY}" 
+
+BUCKET_NAME="$BSHELL"
+BUCKET_DIR="s3://${BUCKET_NAME}/${BNAME}/"
+echo "Checking if S3 backup bucket exists..."   
+S3_CHECK=$(aws s3 ls "${BUCKET_DIR}" 2>&1)  
+#Some sort of error happened with s3 check 
+if [ $? != 0 ]  
+then 
+  NO_BUCKET_CHECK=$(echo $S3_CHECK | grep -c 'NoSuchBucket') 
+  if [ $NO_BUCKET_CHECK = 1 ]; then 
+    echo "Session does not exist in bucket."
+    echo 
+    echo "Available sessions:"
+    s3cmd ls s3://east1.seclab.ninja.${BUDDY}/
+    exit 0
+  else 
+    echo "Error checking S3 Bucket" 
+    echo "$S3_CHECK" 
+    echo "Available sessions:"
+    s3cmd ls s3://east1.seclab.ninja.${BUDDY}/
+    msgbus "S3 bucket Error : $S3_CHECK" 
+    exit 1 
+  fi 
+else
+  echo "Bucket exists with session" 
+  echo "restoring from ${BUCKET_DIR}"
+  msgbus "Session restore from bucket ${BUCKET_NAME} started"
+  s3cmd -v --delete-removed --progress --stats --preserve sync ${BUCKET_DIR} /ctrl/ --exclude ".aws/*"
+  #chmod -R a+x ~/bin
+  #chmod -R go-rwx ~/.ssh
+  msgbus "restore from ${BUCKET_DIR} complete."
+  fi 

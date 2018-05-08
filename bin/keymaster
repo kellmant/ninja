@@ -1,0 +1,89 @@
+#!/bin/bash
+set -a
+source /.IPS
+IFS=$'\n'
+
+function keybrowser {
+DIALOG=${DIALOG=dialog}
+tempfile="$HOME/.keybrowser.$$"
+trap "rm -rf $tempfile ; exit" 0 1 2 5 15
+basekey=$(etcdctl get Exit/state)
+
+
+checkval=$(etcdctl get $basekey 2>/dev/null)
+retval=$?
+    case $retval in
+     0)
+        $DIALOG --backtitle "$motd" --title "${basekey} Value" --inputbox "${1} => $checkval" 0 0 2> $tempfile
+        newkey=$(cat $tempfile) 
+            if [[ -z $newkey && ${newkey+x} ]] ; then
+                echo -e "$newkey is set but undefined, no changes to ${CKEY}$basekey${NC}"
+                msgbus " No new value for $basekey since $ipscmd $BUDDY did not define a value" 
+                basekey=${basekey%/*}
+                etcdctl set Exit/state "$basekey"
+            else
+                echo -e "$BUDDY do you want to commit ${CVAL}$newkey${NC} to key ${CKEY}$basekey${NC} ?"
+                u_confirm "Ready to commit?" || { etcdctl set Exit/state "/" ; exit 45 ; }
+                etcdctl set $basekey "$newkey"
+                basekey=${basekey%/*}
+                etcdctl set Exit/state "$basekey"
+            fi
+       return 0;;
+     1)
+        let i=0
+        MENUITEMS=()
+        VARITEMS=()
+        #OLDIFS=$IFS
+        while read -r line; do
+            line=$(echo $line | cut -d '/' -f 2-)
+            let i=$i+1
+            MENUITEMS+=($i "$line")
+            VARITEMS+=("$line")
+        done < <( etcdctl ls --sort $basekey )
+        #IFS=$OLDIFS
+        $DIALOG --backtitle "$motd" --title "Session: Core" --clear --menu "Keys in ${basekey}" 0 0 0 "${MENUITEMS[@]}" 2> $tempfile
+        retchoice=$(cat $tempfile)
+        if [[ $retchoice -gt 0 ]] ; then
+            g=$(( $retchoice - 1 ))
+            varchoice="${VARITEMS[$g]}"
+            etcdctl set Exit/state "$varchoice"
+            return 0
+        else
+            varchoice="${VARITEMS[0]}"
+                basekey=${basekey%/*}
+                etcdctl set Exit/state "/"
+        fi
+        return 1;;
+     255)    
+        msgbus "Thats a bumpy exit of $0 you had here $BUDDY $retchoice. Probably your fault."
+        if test -s $tempfile ; then
+            cat $tempfile
+            msgbus "test of output $tempfile for key $basekey value" 
+            basekey=${basekey%/*}
+            etcdctl set Exit/state "/"
+            return 254
+        else
+            msgbus "taking a snapshot, then reseting to root of keystore, if you are ready to give up $BUDDY just close the browser and walk away"
+            etcdctl set Exit/state "Exit"
+        fi
+            return 255;;
+    esac
+    return 0
+}
+
+resize
+tput reset
+
+u_confirm "Are you the keymaster $BUDDY ? " || exit 1
+etcdctl set Exit/state "/"
+keybrowser
+while [ $? -lt 255 ] ; do
+    keybrowser
+    keychk=$(etcdctl get Exit/state)
+    if [ "$keychk" == "score" ] || [ "$keychk" == "Exit" ] ; then
+        exit 255;
+    else
+        continue
+    fi
+done
+

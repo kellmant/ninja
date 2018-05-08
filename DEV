@@ -1,0 +1,14 @@
+#!/bin/bash
+#set -eo pipefail
+set -a
+
+#MYBUD="$@"
+#tstamp=$(date +"%H%M-%d-%m-%y")
+#mv -f /hack/index.html /hack/${tstamp}.html
+#mv -f /hack/live.html /hack/index.html
+export TERM=xterm
+
+#/usr/local/bin/ttyd -r 1 -p 3000 -S -C /ca/local.cert.pem -K /ca/local.key.pem tmux -S /socket/$TSOCK new -A -s $TSOCK bash
+exec /usr/local/bin/ttyd -r 1 -p 3000 -S -C /ca/local.cert.pem -K /ca/local.key.pem bash
+#tmux -S /socket/$TSOCK new -A -s $TSOCK "TermRecord -o /hack/live.html -c 'bash -l'"
+#exec /usr/bin/TermRecord -o /hack/live.html -c 'tmux -S /socket/$TSOCK new -A -s $TSOCK "bash -l"'
