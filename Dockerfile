@@ -42,7 +42,7 @@ RUN apk -Uuvv add --no-cache curl openssl tini tzdata ca-certificates && \
 	tar xzvf fleet.tar.gz && cd fleet-v0.11.8-linux-amd64 && \
 	cp ./fleetctl /usr/bin/ && \
     cd / && rm -rf /tmp/build
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 COPY ttyd /root/ttyd
 RUN apk add --update --no-cache \
     autoconf automake bash bsd-compat-headers yarn \
@@ -66,21 +66,18 @@ RUN apk add --update --no-cache \
  && apk del --purge build-base cmake g++ autoconf automake bsd-compat-headers yarn libtool \
  && rm -rf /tmp/* \
  && rm -rf /var/cache/apk/*
-ENV TERM=screen-256color
 RUN	mkdir -p /node && chown -R ctrl /node && \
     echo -n "Gateway In The Sky Project " > /etc/motd && \
 	echo -n "Securing Labs Ninja Dev Shell [Alpine:latest] " >> /etc/motd && \
 	echo "overlaynetwork[TRUSTED] " >> /etc/motd && \
 	echo " " >> /etc/motd && \
-	echo "NodeJS Tools " >> /etc/motd && \
+	echo "NodeJS Tools you can install with npm :" >> /etc/motd && \
 	echo "Learn Node: https://www.npmjs.com/package/learnyounode " >> /etc/motd && \
 	echo "renv: https://www.npmjs.com/package/renv " >> /etc/motd && \
 	echo "Hexo Blog: https://www.npmjs.com/package/hexo " >> /etc/motd && \
 	echo "PUML Diagrams: https://www.npmjs.com/package/node-plantuml " >> /etc/motd && \
-	echo "Explorer CLI: https://www.npmjs.com/package/explorer-cli " >> /etc/motd && \
-	echo "newman: https://www.npmjs.com/package/autotest-engine " >> /etc/motd && \
 	echo " " >> /etc/motd && \
-	apk -Uuvv add --no-cache emacs git \
+	apk -Uuvv add --no-cache git \
 	python py-pip zip util-linux coreutils findutils grep \
 	jq tree groff less build-base linux-headers fontconfig openssl-dev \ 
 	bc vim dialog ncurses ncurses-libs ncurses-terminfo libevent tmux openssh binutils xdg-utils \
@@ -95,18 +92,15 @@ RUN	mkdir -p /node && chown -R ctrl /node && \
 	rm -rf /root/.cache && \
 	rm -rf /tmp/* && \
 	rm -rf /var/cache/apk/*
-USER ctrl
-ENV NPM_CONFIG_PREFIX=/node
-RUN npm config set package-lock false && \
-   	npm install -g yoda-said 
-USER root
-#COPY vim_runtime /usr/share/vim_runtime
 COPY DEV /DEV
 COPY bin/ /usr/local/bin/
 RUN mkdir -p /web && chown -R ctrl /web && mkdir -p /tls && chown -R ctrl /tls
 EXPOSE 3000 4000 5000
 VOLUME ["/socket"]
 USER ctrl
+ENV NPM_CONFIG_PREFIX=/node
+RUN npm config set package-lock false && \
+   	npm install -g yoda-said 
 ENV PATH=~/bin:/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ETCDCTL_STRICT_HOST_KEY_CHECKING=false FLEETCTL_STRICT_HOST_KEY_CHECKING=false TERM=screen-256color
 WORKDIR /ctrl
 ENTRYPOINT ["/sbin/tini", "-g", "--"]
