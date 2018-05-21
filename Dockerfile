@@ -100,6 +100,8 @@ VOLUME ["/socket"]
 USER ctrl
 ENV NPM_CONFIG_PREFIX=/node
 RUN npm config set package-lock false && \
+    npm install -g npm && \
+    npm update -g && \
    	npm install -g yoda-said 
 ENV PATH=~/bin:/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ETCDCTL_STRICT_HOST_KEY_CHECKING=false FLEETCTL_STRICT_HOST_KEY_CHECKING=false TERM=screen-256color
 WORKDIR /ctrl
