@@ -1,0 +1,24 @@
+#!/bin/bash
+#set -eo pipefail
+if [ -z "$@" ] ; then
+	situation="obj"
+else
+	situation="obj/$@"
+fi
+
+shopt -s nullglob
+IFS=$'\n'
+
+INKEYS=($(etcdctl ls --sort --recursive ${situation}))
+for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
+    tfile="${INKEYS[$i]}"
+    thesit=$( echo "$tfile" | cut -d '/' -f 2-)
+vals=$(etcdctl get $tfile 2> /dev/null)
+if [ $? -eq 0 ] ; then
+    echo "${vals}"
+else
+	continue
+fi
+
+done
+
