@@ -25,14 +25,14 @@ for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
             continue
         fi
         (( cnt++ ))
-        echo -n " $cnt $vals "
+        echo -e " ${BGreen}$vals ${NC}"
         echo "${element}=${vals}" >> $formatfile
     else
      #   echo "${element}" >> $formatfile
-        echo -n " ${BGreen} $cnt KEYSTORE: $element${NC} "
+        echo -e "${BWhite} KEY:${BBlue} $element${NC} "
      #continue
     fi
-    echo " "
+    echo -en "${BYellow}   COUNT=> ${BWhite} $cnt ${NC}  "
 done
 mv $formatfile ${formatfile}.${tstamped}${cnt}
 msgbus " dumped $cnt values to ${formatfile}.${tstamped}${cnt}"
