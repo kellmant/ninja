@@ -7,26 +7,15 @@ if [ -z ${1} ] ; then
     exit
 fi
 
-cnt=0
-INKEYS=($(etcdctl ls --sort --recursive ${1}))
-for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
-    tfile="${INKEYS[$i]}"
-    element=$(echo ${tfile} | cut -d '/' -f 2-)
-    vals=$(etcdctl get $tfile 2>/dev/null)
-    if [ $? -eq 0 ] ; then
-        (( cnt++ ))
-        echo "${cnt} ${element} => ${vals}"
-    else
-        continue
-    fi
-done
-u_confirm "Remove $cnt keys in $1" 
+u_confirm "Remove ALL keys in $1 ? " 
 if [ $? -eq 1 ] ; then
-msgbus "$cnt keys were spared by $BUDDY just now in ${1} ${NC}"
+msgbus "keys were spared by $BUDDY just now in ${1} ${NC}"
+echo "chicken"
+echo
 exit 1
 else
 etcdctl rm --recursive ${1}
-msgbus "$cnt keys gone at that the hands of $BUDDY in ${1} ${NC}" 
+msgbus "$1 keys gone at that the hands of $BUDDY ${NC}" 
 fi
 exit 0
 
