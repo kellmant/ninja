@@ -11,6 +11,12 @@ else
     formatfile="KEYSTORE.${mykeys}"
     echo "dump/$SKEY/${1}=$(date)" > $formatfile
 fi
+if [ -d /web ] ; then
+    dweb="/web"
+else
+    dweb="$HOME"
+fi
+
 tstamped=$(date +%Y%m%d_)
 cnt=0
 echo
@@ -44,10 +50,12 @@ for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
     #echo -en " ${BYellow}=>${BWhite} $cnt ${NC} "
     tput rc
 done
-mv $formatfile ${formatfile}.${tstamped}${cnt}
-echo -e " Done. Wrote $cnt values from ${1} keys to ${formatfile}.${tstamped}${cnt}"
+dumpdest="${dweb}/${formatfile}.${tstamped}${cnt}_values"
+mv -f $formatfile ${dumpdest}
+cp -f ${dumpdest} ${dweb}/${formatfile}.last
+echo -e " Done. Wrote $cnt values from ${1} keys to ${dumpdest}"
 echo
-echo -e " To restore ${1} keys at a later time run ${BWhite}loadkeys ${formatfile}.${tstamped}${cnt}${NC}"
+echo -e " To restore ${1} keys at a later time run ${BWhite}loadkeys ${dumpdest}${NC}"
 echo
-msgbus " dumped $cnt values to ${formatfile}.${tstamped}${cnt}"
+msgbus " dumped $cnt values to ${dumpdest}"
 
