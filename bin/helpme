@@ -29,6 +29,7 @@ echo " To setup a git service you can use: "
 echo -e "${BWhite}  gitname \"Your Name\"${NC}" 
 echo -e "${BWhite}  gitmail \"You@there.com\"${NC}"  
 echo -e "Optional: use${BWhite} gitpass${NC} to cache github credentials (for the less paranoid than lazy)"
+echo -e " Run ${BWhite}githelp${NC} to see short alias of commands to manage your source code."
 echo
 echo " The following local ports are mapped to outside URL for live testing:"
 echo -e "${BBlue} localhost:4000 ${NC}=> ${BGreen}https://api.${BUDDY}.seclab.ninja${NC}"
