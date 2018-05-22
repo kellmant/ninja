@@ -19,22 +19,23 @@ echo "Backing up ${1} keystore . . . "
 echo
 INKEYS=($(etcdctl ls --sort --recursive ${1})) || { echo "${1} not a key" ; exit 1 ; }
 for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
-    tput sc
-    tput el
     tfile="${INKEYS[$i]}"
     element=$(echo ${tfile} | cut -d '/' -f 2-)
     dumpchk=$(echo ${tfile} | cut -d '/' -f 2)
     #echo -e "${BBlue} $element ${NC}"
     vals=$(etcdctl get $tfile 2>/dev/null)
+    tput sc
     if [ $? -eq 0 ] ; then
         if [ "$dumpchk" == "dump" ] ; then
             continue
         fi
         (( cnt++ ))
+        tput el
         echo -en " ${BYellow} Dumping => ${BWhite} $cnt ${NC} "
         echo -en " ${BGreen} $element ${NC}"
         echo "${element}=${vals}" >> $formatfile
     else
+        tput el
      #   echo "${element}" >> $formatfile
         #echo -en "${BWhite} KEY:${BBlue} $element${NC} "
         echo -en " ${BYellow} Dumping => ${BWhite} $cnt ${NC} "
