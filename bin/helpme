@@ -26,9 +26,9 @@ echo -e "${BBlue}nodejs  : ${BWhite} $(node -v) ${NC}"
 echo -en "${NC}"
 echo
 echo " To setup a git service you can use: "
-echo "git config --global user.name " 
-echo "git config --global user.email "  
-echo "git config --global credential.helper store "
+echo -e "${BWhite}  gitname \"Your Name\"${NC}" 
+echo -e "${BWhite}  gitmail \"You@there.com\"${NC}"  
+echo -e "Optional: use${BWhite} gitpass${NC} to cache github credentials (for the less paranoid than lazy)"
 echo
 echo " The following local ports are mapped to outside URL for live testing:"
 echo -e "${BBlue} localhost:4000 ${NC}=> ${BGreen}https://api.${BUDDY}.seclab.ninja${NC}"
