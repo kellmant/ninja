@@ -11,8 +11,11 @@ trap "jobtrace '$$'" 0 1 2 3 6
 
 IFS=$'\n'
 
+echo 
+echo " Restoring keystore from ${1} . . . "
+echo
+
 formatfile="${1}"
-    mykeys=$(echo ${1} | tr '-' '/')
 cnt=0
 INKEYS=($(cat ${formatfile})) || { echo "${1} not a file" ; exit 1 ; }
 for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
@@ -20,6 +23,13 @@ for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
     element=$(echo ${tfile} | cut -d '=' -f 1)
     vals="$(echo ${tfile} | cut -d '=' -f 2-)"
         (( cnt++ ))
-        echo -n " loading $cnt $element "
-        etcdctl set ${element} "${vals}"
+        tput sc
+        tput el
+        echo -en "${BYellow} loading => ${BWhite}$cnt ${BBlue} $element ${NC}"
+        etcdctl set ${element} "${vals}" &> /dev/null
+        tput rc
 done
+echo
+        echo -e "${BWhite}    $cnt ${BGreen}values loaded into local keystore.${NC}"
+        echo
+

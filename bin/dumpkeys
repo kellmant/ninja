@@ -11,28 +11,43 @@ else
     formatfile="KEYSTORE.${mykeys}"
     echo "dump/$SKEY/${1}=$(date)" > $formatfile
 fi
+tput reset
 tstamped=$(date +%Y%m%d_)
 cnt=0
+echo
+echo "Backing up ${1} keystore . . . "
+echo
 INKEYS=($(etcdctl ls --sort --recursive ${1})) || { echo "${1} not a key" ; exit 1 ; }
 for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
+    tput sc
+    tput el
     tfile="${INKEYS[$i]}"
     element=$(echo ${tfile} | cut -d '/' -f 2-)
     dumpchk=$(echo ${tfile} | cut -d '/' -f 2)
-    echo -e "${BBlue} $element ${NC}"
+    #echo -e "${BBlue} $element ${NC}"
     vals=$(etcdctl get $tfile 2>/dev/null)
     if [ $? -eq 0 ] ; then
         if [ "$dumpchk" == "dump" ] ; then
             continue
         fi
         (( cnt++ ))
-        echo -e " ${BGreen}$vals ${NC}"
+        echo -en " ${BYellow} Dumping => ${BWhite} $cnt ${NC} "
+        echo -en " ${BGreen} $element ${NC}"
         echo "${element}=${vals}" >> $formatfile
     else
      #   echo "${element}" >> $formatfile
-        echo -e "${BWhite} KEY:${BBlue} $element${NC} "
+        #echo -en "${BWhite} KEY:${BBlue} $element${NC} "
+        echo -en " ${BYellow} Dumping => ${BWhite} $cnt ${NC} "
+        echo -en " ${BBlue} $element ${NC}"
      #continue
     fi
-    echo -en "${BYellow}   COUNT=> ${BWhite} $cnt ${NC}  "
+    #echo -en " ${BYellow}=>${BWhite} $cnt ${NC} "
+    tput rc
 done
 mv $formatfile ${formatfile}.${tstamped}${cnt}
+echo -e " Done. Wrote $cnt values from ${1} keys to ${formatfile}.${tstamped}${cnt}"
+echo
+echo -e " To restore ${1} keys at a later time run ${BWhite}loadkeys ${formatfile}.${tstamped}${cnt}${NC}"
+echo
 msgbus " dumped $cnt values to ${formatfile}.${tstamped}${cnt}"
+
