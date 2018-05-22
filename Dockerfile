@@ -92,6 +92,13 @@ RUN	mkdir -p /node && chown -R ctrl /node && \
 	rm -rf /root/.cache && \
 	rm -rf /tmp/* && \
 	rm -rf /var/cache/apk/*
+USER ctrl
+ENV NPM_CONFIG_PREFIX=/node
+RUN npm config set package-lock false && \
+    npm install -g npm && \
+    npm update -g && \
+   	npm install -g yoda-said 
+USER root
 COPY DEV /DEV
 COPY bin/ /usr/local/bin/
 RUN mkdir -p /web && chown -R ctrl /web && mkdir -p /tls && chown -R ctrl /tls
@@ -99,10 +106,8 @@ EXPOSE 3000 4000 5000
 VOLUME ["/socket"]
 USER ctrl
 ENV NPM_CONFIG_PREFIX=/node
-RUN npm config set package-lock false && \
-    npm install -g npm && \
-    npm update -g && \
-   	npm install -g yoda-said 
+RUN npm install -g json-to-plantuml && \
+    npm install -g js2uml 
 ENV PATH=~/bin:/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ETCDCTL_STRICT_HOST_KEY_CHECKING=false FLEETCTL_STRICT_HOST_KEY_CHECKING=false TERM=screen-256color
 WORKDIR /ctrl
 ENTRYPOINT ["/sbin/tini", "-g", "--"]
