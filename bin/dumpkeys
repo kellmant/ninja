@@ -43,7 +43,7 @@ for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
         tput el
      #   echo "${element}" >> $formatfile
         #echo -en "${BWhite} KEY:${BBlue} $element${NC} "
-        echo -en " ${BYellow} Dumping => ${BWhite} $cnt ${NC} "
+        echo -en " ${BYellow} Reading => ${BWhite} $cnt ${NC} "
         echo -en " ${BBlue} $element ${NC}"
      #continue
     fi
