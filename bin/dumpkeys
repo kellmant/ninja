@@ -28,8 +28,8 @@ for (( i=0; i<${#INKEYS[@]}; i++ )) ; do
     element=$(echo ${tfile} | cut -d '/' -f 2-)
     dumpchk=$(echo ${tfile} | cut -d '/' -f 2)
     #echo -e "${BBlue} $element ${NC}"
-    vals=$(etcdctl get $tfile 2>/dev/null)
     tput sc
+    vals=$(etcdctl get $tfile 2>/dev/null)
     if [ $? -eq 0 ] ; then
         if [ "$dumpchk" == "dump" ] ; then
             continue
