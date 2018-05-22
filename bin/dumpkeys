@@ -11,7 +11,6 @@ else
     formatfile="KEYSTORE.${mykeys}"
     echo "dump/$SKEY/${1}=$(date)" > $formatfile
 fi
-tput reset
 tstamped=$(date +%Y%m%d_)
 cnt=0
 echo
