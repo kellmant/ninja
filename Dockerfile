@@ -97,6 +97,7 @@ ENV NPM_CONFIG_PREFIX=/node
 RUN npm config set package-lock false && \
     npm install -g npm && \
     npm update -g && \
+    npm install -g generate-schema && \
    	npm install -g yoda-said 
 USER root
 COPY DEV /DEV
